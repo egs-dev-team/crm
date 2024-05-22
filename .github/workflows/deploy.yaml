@@ -1,0 +1,39 @@
+name: Flutter Web CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'stable' # Use the stable version or specify the version you need
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build Flutter web
+        run: flutter build web —wasm
+
+      - name: Install lftp
+        run: sudo apt-get install -y lftp
+
+      - name: Delete previous files on FTP
+        run: |
+          lftp -c "set ftp:ssl-allow no; open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_SERVER }}; mirror -R --delete --verbose / ${{ secrets.FTP_REMOTE_DIR }}"
+
+      - name: Upload new files to FTP
+        run: |
+          lftp -c "set ftp:ssl-allow no; open -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_SERVER }}; mirror -R build/web/ ${{ secrets.FTP_REMOTE_DIR }}"
