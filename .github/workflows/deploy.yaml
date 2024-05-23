@@ -13,19 +13,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: 🛒 Checkout repository
         uses: actions/checkout@v2
 
-      - name: Install lftp
+      - name: 📦 Install lftp
         run: sudo apt-get install -y lftp  
 
-      - name: Delete previous files on FTP
+      - name: 🛠️ Configure LFTP
+        run: mkdir ~/.lftp && echo "set ssl:verify-certificate false;" >> ~/.lftp/rc
+
+      - name: 🔑 Load Secrets
+        run: echo "machine ${{ secrets.FTP_SERVER }} login ${{ secrets.FTP_USERNAME }} password ${{ secrets.FTP_PASSWORD }}" > ~/.netrc
+
+      - name: 🗑️ Delete all files and folders in FTP_REMOTE_DIR
         run: |
-          lftp -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_SERVER }} --no-ssl-verify <<EOF
-            cd ${{ secrets.FTP_REMOTE_DIR }}
-            rm -r *
-            exit
-          EOF
+          lftp -f "
+          set ssl:verify-certificate false;
+          open ${secrets.FTP_SERVER};
+          user ${secrets.FTP_USERNAME} ${secrets.FTP_PASSWORD};
+          cd ${secrets.FTP_REMOTE_DIR};
+          mirror --reverse --delete .;
+          quit;"
+
+      # - name: Delete previous files on FTP
+      #   run: |
+      #     lftp -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_SERVER }} --no-ssl-verify <<EOF
+      #       cd ${{ secrets.FTP_REMOTE_DIR }}
+      #       rm -r *
+      #       exit
+          # EOF
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
@@ -39,11 +55,25 @@ jobs:
       - name: Build Flutter web
         run: flutter build web --wasm
 
-      - name: Upload new files to FTP
+      - name: 📄 Copy files from build/web to FTP_REMOTE_DIR
         run: |
-          lftp -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_SERVER }} --no-ssl-verify <<EOF
-            lcd build/web
-            cd ${{ secrets.FTP_REMOTE_DIR }}
-            mirror -R --delete-first --use-pget-n=5 --parallel=10 --exclude-glob .git* build/web .
-            exit
-          EOF
+          lftp -f "
+          set ssl:verify-certificate false;
+          open ${secrets.FTP_SERVER};
+          user ${secrets.FTP_USERNAME} ${secrets.FTP_PASSWORD};
+          mirror --delete --use-pget-n=5 --parallel=10 --exclude-glob .git ./build/web ${secrets.FTP_REMOTE_DIR};
+          quit;"
+
+      # - name: Upload new files to FTP
+      #   run: |
+      #     lftp -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_SERVER }} --no-ssl-verify <<EOF
+      #       lcd build/web
+      #       cd ${{ secrets.FTP_REMOTE_DIR }}
+      #       mirror -R --delete-first --use-pget-n=5 --parallel=10 --exclude-glob .git* build/web .
+      #       exit
+      #     EOF
+
+      # - name: 📄 Upload File
+      #   run: lftp -e "put -O / ./README.md" ${{ secrets.FTP_HOSTNAME }}
+      # - name: 📁 Upload Folder
+      #   run: lftp -e "mirror --parallel=100 -R ./ffmpeg/ /ffmpeg/" ${{ secrets.FTP_HOSTNAME }}
