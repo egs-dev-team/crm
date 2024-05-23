@@ -20,4 +20,3 @@ jobs:
       - uses: bluefireteam/flutter-gh-pages@v7
         with:
           baseHref: /crm/
-          token: ${{ secrets.TOKEN_GITHUB }}
