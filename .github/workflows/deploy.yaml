@@ -26,8 +26,10 @@ jobs:
         run: flutter pub get
 
       - name: Build Flutter web
-        run: flutter build web --release
+        run: flutter build web --wasm
 
+      - name: Install lftp
+        run: sudo apt-get install -y lftp  
 
       - name: Delete previous files on FTP
         run: |
