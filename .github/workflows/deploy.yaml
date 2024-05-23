@@ -34,6 +34,7 @@ jobs:
           user ${{ secrets.FTP_USERNAME }} ${{ secrets.FTP_PASSWORD }}
           cd ${{ secrets.FTP_REMOTE_DIR }}
           mdelete -r *
+          rmdir
           bye
           EOF
 
