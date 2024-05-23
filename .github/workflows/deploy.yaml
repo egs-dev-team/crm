@@ -1,4 +1,4 @@
-name: Flutter Web CI
+name: Flutter Web CI production
 
 on:
   push:
@@ -19,14 +19,14 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: master
+          channel: stable
           flutter-version-file: pubspec.yaml
 
       - name: Install dependencies
         run: flutter pub get
 
       - name: Build Flutter web
-        run: flutter build web --wasm
+        run: flutter build web --release
 
       - name: Delete previous files on FTP
         run: |
