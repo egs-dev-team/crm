@@ -33,8 +33,7 @@ jobs:
           ftp -inv ${{ secrets.FTP_SERVER }} <<EOF
           user ${{ secrets.FTP_USERNAME }} ${{ secrets.FTP_PASSWORD }}
           cd ${{ secrets.FTP_REMOTE_DIR }}
-          mdelete *
-          rmdir -r *
+          mdelete -r *
           bye
           EOF
 
@@ -44,6 +43,6 @@ jobs:
           user ${{ secrets.FTP_USERNAME }} ${{ secrets.FTP_PASSWORD }}
           lcd build/web
           cd ${{ secrets.FTP_REMOTE_DIR }}
-          mput *
+          mirror -R build/web ${{ secrets.FTP_REMOTE_DIR }}
           bye
           EOF

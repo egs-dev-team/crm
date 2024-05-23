@@ -1,6 +1,6 @@
 {
-    "name": "egs_new",
-    "short_name": "egs_new",
+    "name": "crm",
+    "short_name": "crm",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
