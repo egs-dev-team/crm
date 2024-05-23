@@ -25,44 +25,35 @@ jobs:
       - name: 🔑 Load Secrets
         run: echo "machine ${{ secrets.FTP_SERVER }} login ${{ secrets.FTP_USERNAME }} password ${{ secrets.FTP_PASSWORD }}" > ~/.netrc
 
-      - name: 🗑️ Delete all files and folders in FTP_REMOTE_DIR
+    
+      - name: 🗑️ Delete previous files on FTP
         run: |
-          lftp -f "
-          set ssl:verify-certificate false;
-          open ${secrets.FTP_SERVER};
-          user ${secrets.FTP_USERNAME} ${secrets.FTP_PASSWORD};
-          cd ${secrets.FTP_REMOTE_DIR};
-          mirror --reverse --delete .;
-          quit;"
+          lftp -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_SERVER }} <<EOF
+            cd ${{ secrets.FTP_REMOTE_DIR }}
+            rm -r *
+            exit
+          EOF
 
-      # - name: Delete previous files on FTP
+      # - name: Set up Flutter
+      #   uses: subosito/flutter-action@v2
+      #   with:
+      #     channel: stable
+      #     flutter-version-file: pubspec.yaml
+
+      # - name: Install dependencies
+      #   run: flutter pub get
+
+      # - name: Build Flutter web
+      #   run: flutter build web --wasm
+
+      # - name: 📄 Copy files from build/web to FTP_REMOTE_DIR
       #   run: |
-      #     lftp -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_SERVER }} --no-ssl-verify <<EOF
-      #       cd ${{ secrets.FTP_REMOTE_DIR }}
-      #       rm -r *
-      #       exit
-          # EOF
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          flutter-version-file: pubspec.yaml
-
-      - name: Install dependencies
-        run: flutter pub get
-
-      - name: Build Flutter web
-        run: flutter build web --wasm
-
-      - name: 📄 Copy files from build/web to FTP_REMOTE_DIR
-        run: |
-          lftp -f "
-          set ssl:verify-certificate false;
-          open ${secrets.FTP_SERVER};
-          user ${secrets.FTP_USERNAME} ${secrets.FTP_PASSWORD};
-          mirror --delete --use-pget-n=5 --parallel=10 --exclude-glob .git ./build/web ${secrets.FTP_REMOTE_DIR};
-          quit;"
+      #     lftp -f "
+      #     set ssl:verify-certificate false;
+      #     open ${secrets.FTP_SERVER};
+      #     user ${secrets.FTP_USERNAME} ${secrets.FTP_PASSWORD};
+      #     mirror --delete --use-pget-n=5 --parallel=10 --exclude-glob .git ./build/web ${secrets.FTP_REMOTE_DIR};
+      #     quit;"
 
       # - name: Upload new files to FTP
       #   run: |
