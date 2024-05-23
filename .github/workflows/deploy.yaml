@@ -28,22 +28,20 @@ jobs:
       - name: Build Flutter web
         run: flutter build web --release
 
+
       - name: Delete previous files on FTP
         run: |
-          ftp -inv ${{ secrets.FTP_SERVER }} <<EOF
-          user ${{ secrets.FTP_USERNAME }} ${{ secrets.FTP_PASSWORD }}
-          cd ${{ secrets.FTP_REMOTE_DIR }}
-          mdelete -r *
-          rmdir
-          bye
+          lftp -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_SERVER }} <<EOF
+            cd ${{ secrets.FTP_REMOTE_DIR }}
+            rm -r *
+            exit
           EOF
 
       - name: Upload new files to FTP
         run: |
-          ftp -inv ${{ secrets.FTP_SERVER }} <<EOF
-          user ${{ secrets.FTP_USERNAME }} ${{ secrets.FTP_PASSWORD }}
-          lcd build/web
-          cd ${{ secrets.FTP_REMOTE_DIR }}
-          mirror -R build/web ${{ secrets.FTP_REMOTE_DIR }}
-          bye
+          lftp -u ${{ secrets.FTP_USERNAME }},${{ secrets.FTP_PASSWORD }} ${{ secrets.FTP_SERVER }} <<EOF
+            lcd build/web
+            cd ${{ secrets.FTP_REMOTE_DIR }}
+            mirror -R --delete-first --use-pget-n=5 --parallel=10 --exclude-glob .git* build/web .
+            exit
           EOF
