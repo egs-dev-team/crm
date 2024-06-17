@@ -140,7 +140,6 @@ class _MyTable extends State<MyTable> {
                             color: Theme.of(context).colorScheme.secondary,
                           ),
                           columnSpacing: defaultPadding,
-                          // minWidth: 600,
                           columns: const [
                             DataColumn(
                               label: Text("Номер"),
@@ -186,7 +185,7 @@ class _MyTable extends State<MyTable> {
                             ),
                           ],
                           rows: rows,
-                        )));
+                        ),),);
               }
             },
           ),
