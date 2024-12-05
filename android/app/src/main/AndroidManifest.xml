@@ -2,7 +2,7 @@
     <application
         android:label="egs_new"
         android:name="${applicationName}"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/egs_logo">
         <activity
             android:name=".MainActivity"
             android:exported="true"
