@@ -1,9 +1,0 @@
-{
-  "dart.flutterSdkPath": ".fvm/versions/stable",
-  "yaml.schemas": {
-    "https://json.schemastore.org/yamllint.json": [
-      "file:///Users/timur/develop/egs_new/.github/workflows/deploy.yaml",
-      "file:///Users/timur/develop/crm/.github/workflows/deploy.yaml"
-    ]
-  }
-}
