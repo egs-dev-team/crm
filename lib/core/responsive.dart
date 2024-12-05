@@ -9,7 +9,7 @@ class ResponsiveWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaxWidthBox(
       maxWidth: 2000,
-      background: Container(color: Colors.transparent),
+      backgroundColor:  Colors.transparent,
       child: ResponsiveScaledBox(
         width: ResponsiveValue<double>(
           context,
